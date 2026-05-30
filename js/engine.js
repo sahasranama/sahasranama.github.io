@@ -351,6 +351,21 @@ const Atlas = {
 
   drawLabels(focus, kin, anyFocus){
     const ctx=this.ctx;
+    // mandala: faint concentric century rings (100, 300 ... 900) for orientation.
+    // radius mirrors the phyllotaxis seeding r = 30*sqrt(i+4) used in computeLayouts.
+    if(this.layout==='mandala' && !this.morphing){
+      ctx.save();
+      const [cx,cy]=this.worldToScreen(0,0);
+      for(let m=100;m<=900;m+=200){
+        const r=30*Math.sqrt(m+4)*this.scale;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,7);
+        ctx.lineWidth=1; ctx.strokeStyle=this.accentRGBA(0.10); ctx.stroke();
+        ctx.font='600 10px '+this.labelFont;
+        ctx.fillStyle=this.mode==='night'?'rgba(201,183,156,0.7)':'rgba(107,58,32,0.7)';
+        ctx.textAlign='center'; ctx.fillText(String(m), cx, cy-r-5); ctx.textAlign='left';
+      }
+      ctx.restore();
+    }
     const label=(n, big)=>{
       const [sx,sy]=this.worldToScreen(n.x,n.y);
       ctx.font = (big?'italic 600 17px ':'italic 500 13.5px ')+this.labelFont;

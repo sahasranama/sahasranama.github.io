@@ -45,6 +45,8 @@ async function boot(){
   Atlas.setLayout('constellation');
   Atlas.setConnection(conn);
   updateScalebar();
+  bindKeys();
+  readURL();
   setTimeout(()=>{ $('#loader').classList.add('gone');
     setTimeout(()=>$('#loader').remove(), 900); }, 650);
 }
@@ -91,6 +93,7 @@ function buildChrome(){
 
   // search
   const si=$('#searchInput');
+  $('#searchBtn').innerHTML=IC.search;
   $('#searchBtn').onclick=()=>{ const s=$('#search'); s.classList.toggle('open');
     if(s.classList.contains('open')) si.focus(); else { si.value=''; renderSearch(''); } };
   si.addEventListener('input',()=>renderSearch(si.value));
@@ -119,25 +122,27 @@ function setLens(id){
     litany.classList.remove('show'); $('#scalebar').style.display=''; $('#hint').style.display='';
     Atlas.setLayout(id);
   }
+  syncURL();
 }
 function setConn(id){
   markInteract(); conn=id; Atlas.setConnection(id);
   document.querySelectorAll('#connList button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.conn===id));
   if(Atlas.selected!=null) openDetail(Atlas.selected); // refresh related
+  syncURL();
 }
 function toggleTheme(id){
   markInteract();
   filter.theme = filter.theme===id ? null : id;
   if(filter.theme) filter.avatar=null;
-  syncFilterUI(); Atlas.setFilter(filter); updateScalebar();
+  syncFilterUI(); Atlas.setFilter(filter); updateScalebar(); syncURL();
 }
 function toggleAvatar(id){
   markInteract();
   filter.avatar = filter.avatar===id ? null : id;
   if(filter.avatar) filter.theme=null;
-  syncFilterUI(); Atlas.setFilter(filter); updateScalebar();
+  syncFilterUI(); Atlas.setFilter(filter); updateScalebar(); syncURL();
 }
-function clearFilters(){ filter.theme=null; filter.avatar=null; syncFilterUI(); Atlas.setFilter(filter); updateScalebar(); }
+function clearFilters(){ filter.theme=null; filter.avatar=null; syncFilterUI(); Atlas.setFilter(filter); updateScalebar(); syncURL(); }
 function syncFilterUI(){
   document.querySelectorAll('#themeChips .chip').forEach(b=>b.setAttribute('aria-pressed', b.dataset.theme===filter.theme));
   document.querySelectorAll('#avatarChips .chip').forEach(b=>b.setAttribute('aria-pressed', b.dataset.avatar===filter.avatar));
@@ -186,6 +191,51 @@ function selectNode(n){
   openDetail(n);
   if(lens==='litany'){ scrollToVerse(n); }
   else { Atlas.centerOn(n); }
+  syncURL();
+}
+
+// ---------------- deep links (shareable URL hash) ----------------
+let restoring=false;
+function syncURL(){
+  if(restoring) return;
+  const p=new URLSearchParams();
+  if(lens!=='constellation') p.set('lens',lens);
+  if(conn!=='roots') p.set('conn',conn);
+  if(filter.theme) p.set('theme',filter.theme);
+  if(filter.avatar) p.set('avatar',filter.avatar);
+  if(Atlas.selected!=null) p.set('n',Atlas.selected);
+  const s=p.toString();
+  history.replaceState(null,'', s ? '#'+s : location.pathname+location.search);
+}
+function readURL(){
+  const p=new URLSearchParams(location.hash.slice(1));
+  restoring=true;
+  const C=p.get('conn'); if(C && CONN.some(c=>c.id===C)) setConn(C);
+  const L=p.get('lens'); if(L && ['constellation','mandala','litany'].includes(L)) setLens(L);
+  const th=p.get('theme'); if(th && DATA.themes.some(t=>t.id===th)) toggleTheme(th);
+  const av=p.get('avatar'); if(av && DATA.avatars.some(a=>a.id===av)) toggleAvatar(av);
+  restoring=false;
+  const n=+p.get('n'); if(n>=1 && n<=1000) setTimeout(()=>selectNode(n), 400);
+  else syncURL();
+}
+
+// ---------------- keyboard ----------------
+function bindKeys(){
+  document.addEventListener('keydown', e=>{
+    const typing = e.target.tagName==='INPUT' || e.target.isContentEditable;
+    if(e.key==='Escape'){
+      if($('#about').classList.contains('open')){ $('#about').classList.remove('open'); return; }
+      if(!$('#tweakPanel').hasAttribute('hidden')){ $('#tweakPanel').setAttribute('hidden',''); $('#tweakBtn').classList.remove('on'); return; }
+      if($('#detail').classList.contains('open')){ Atlas.select(null); closeDetail(); return; }
+    }
+    if(typing) return;
+    if(e.key==='/'){ e.preventDefault(); const s=$('#search'); s.classList.add('open'); $('#searchInput').focus(); }
+    else if(e.key==='ArrowRight' && Atlas.selected!=null){ e.preventDefault(); selectNode(Math.min(1000, Atlas.selected+1)); }
+    else if(e.key==='ArrowLeft' && Atlas.selected!=null){ e.preventDefault(); selectNode(Math.max(1, Atlas.selected-1)); }
+    else if(e.key==='1'){ setLens('constellation'); }
+    else if(e.key==='2'){ setLens('mandala'); }
+    else if(e.key==='3'){ setLens('litany'); }
+  });
 }
 
 // ---------------- DETAIL PANEL ----------------
@@ -253,7 +303,7 @@ function openDetail(n){
   $('#detail').classList.add('open');
   syncLitanySel();
 }
-function closeDetail(){ $('#detail').classList.remove('open'); syncLitanySel(); }
+function closeDetail(){ $('#detail').classList.remove('open'); syncLitanySel(); syncURL(); }
 function cap(s){ s=s.trim(); return s.charAt(0).toUpperCase()+s.slice(1); }
 function devForRoot(r){ const map={bhuta:'भूत',maha:'महा',vishva:'विश्व',atma:'आत्मन्',veda:'वेद',ishvara:'ईश्वर',prabha:'प्रभा',padma:'पद्म',chatur:'चतुर्',siddha:'सिद्ध',ananta:'अनन्त',yoga:'योग',hari:'हरि',nabha:'नाभ',deva:'देव',gati:'गति',kara:'कर',dhara:'धर'}; return map[r]||'॥'; }
 
@@ -300,7 +350,8 @@ function buildAbout(){
     <h2>Sahasranama <em>Atlas</em></h2>
     <div class="ac-sub">the thousand names of Viṣṇu, connected</div>
     <p>The <b>Viṣṇu Sahasranāma</b>, from the Anuśāsana Parva of the Mahābhārata, is a litany of one thousand names. It is not a flat list. Names <b>recur</b> with new shades of meaning, <b>cluster</b> around shared roots, gesture toward the <b>avatāras</b>, and together map an entire inner life.</p>
-    <p>This atlas turns the litany into something you can <b>wander</b>. Three lenses offer three ways of seeing: a <b>Constellation</b> where names gather by theme, a <b>Mandala</b> that spirals them in the order they are sung, and the <b>Litany</b> itself as an illuminated scroll.</p>
+    <p class="ac-story">Bhīṣma lay on a bed of arrows, waiting for his chosen hour to die. Yudhiṣṭhira came to him with a question: of all that is, which is the one refuge, the highest praise a person can hold? The grandsire's answer was these thousand names of Viṣṇu, the lord of all that has been and will be.</p>
+    <p>This atlas turns that answer into something you can <b>wander</b>. Three lenses offer three ways of seeing: a <b>Constellation</b> where names gather by theme, a <b>Mandala</b> that spirals them in the order they are sung, and the <b>Litany</b> itself as an illuminated scroll. Press <b>1 2 3</b> to switch, <b>/</b> to search, arrow keys to walk the litany, and share any view by its link.</p>
     <div class="ac-grid">
       <div class="ac-cell"><div class="acn">1000</div><div class="acl">names</div></div>
       <div class="ac-cell"><div class="acn">${recurGroups}</div><div class="acl">recurring names</div></div>

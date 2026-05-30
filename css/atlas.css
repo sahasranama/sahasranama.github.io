@@ -147,17 +147,15 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 .iconbtn svg{width:17px;height:17px;}
 
 /* search */
-.search{position:relative;}
+.search{position:relative;display:flex;align-items:center;gap:6px;}
 .search input{
-  width:0;opacity:0;padding:0;border:none;
+  width:0;opacity:0;padding:0;border:none;margin:0;
   height:38px;border-radius:999px;background:var(--bg-2);color:var(--ink-1);
   font-family:var(--font-sans);font-size:14px;
-  transition:width .35s var(--ease),opacity .25s var(--ease),padding .35s var(--ease);
+  transition:width .35s var(--ease),opacity .25s var(--ease),padding .35s var(--ease),margin .35s var(--ease);
   border:1px solid transparent;
 }
-.search.open input{width:230px;opacity:1;padding:0 16px 0 40px;border-color:var(--chip-line);}
-.search .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink-3);}
-.search .si svg{width:17px;height:17px;display:block;}
+.search.open input{width:230px;opacity:1;padding:0 16px;margin-left:2px;border-color:var(--chip-line);}
 .search-results{
   position:absolute;top:46px;right:0;width:300px;max-height:50vh;overflow-y:auto;
   background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--line);
@@ -418,3 +416,9 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 .twk-faces button:hover{color:var(--ink-1);border-color:var(--gold);}
 .twk-faces button[aria-pressed="true"]{color:var(--ink-1);border-color:var(--gold);background:var(--bg-3);}
 @media (max-width:900px){ .tweakpanel{right:12px;left:12px;width:auto;} }
+
+/* about: the framing story pull-quote */
+.about-card .ac-story{
+  font-style:italic;color:var(--ink-1);
+  border-left:2px solid var(--gold);padding-left:16px;margin-left:2px;
+}
