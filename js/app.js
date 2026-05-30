@@ -17,7 +17,10 @@ const IC={
   constellation:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="1.3" fill="currentColor"/><circle cx="17" cy="5" r="1.3" fill="currentColor"/><circle cx="12" cy="13" r="1.3" fill="currentColor"/><circle cx="19" cy="17" r="1.3" fill="currentColor"/><circle cx="6" cy="18" r="1.3" fill="currentColor"/><path d="M6 7l6 6M17 5l-5 8M12 13l7 4M12 13l-6 5" opacity=".55"/></svg>',
   mandala:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.4"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/></svg>',
   litany:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 6h14M5 10h14M5 14h10M5 18h7"/></svg>',
+  index:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>',
+  music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>',
 };
+const SPOTIFY_EMBED='https://open.spotify.com/embed/track/4uskjBImTcCZS0q3CAXtM6?utm_source=generator';
 
 const CONN=[
   {id:'roots', label:'Shared roots', sub:'morphology'},
@@ -99,6 +102,20 @@ function buildChrome(){
   si.addEventListener('input',()=>renderSearch(si.value));
   si.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#search').classList.remove('open'); si.value=''; renderSearch(''); }});
 
+  // index panel
+  $('#indexBtn').innerHTML=IC.index;
+  $('#indexBtn').onclick=()=>{ $('#indexPanel').classList.contains('open') ? closeIndex() : openIndex(); };
+  $('#indexClose').innerHTML=IC.x;
+  $('#indexClose').onclick=closeIndex;
+  $('#indexSearch').addEventListener('input',e=>buildIndexList(e.target.value));
+
+  // chant player (Spotify, lazy)
+  $('#musicBtn').innerHTML=IC.music;
+  $('#musicBtn').onclick=ev=>{ ev.stopPropagation(); toggleMusic(); };
+  document.addEventListener('click',e=>{ const mp=$('#musicPanel');
+    if(!mp.hasAttribute('hidden') && !mp.contains(e.target) && !e.target.closest('#musicBtn')){
+      mp.setAttribute('hidden',''); $('#musicBtn').classList.remove('on'); } });
+
   $('#themeBtn').onclick=toggleMode;
   $('#themeBtn').innerHTML=IC.sun;
   $('#aboutBtn').innerHTML=IC.info;
@@ -128,6 +145,7 @@ function setConn(id){
   markInteract(); conn=id; Atlas.setConnection(id);
   document.querySelectorAll('#connList button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.conn===id));
   if(Atlas.selected!=null) openDetail(Atlas.selected); // refresh related
+  if($('#indexPanel').classList.contains('open')){ renderIxTabs(); buildIndexList($('#indexSearch').value); }
   syncURL();
 }
 function toggleTheme(id){
@@ -226,8 +244,11 @@ function bindKeys(){
     if(e.key==='Escape'){
       if($('#about').classList.contains('open')){ $('#about').classList.remove('open'); return; }
       if(!$('#tweakPanel').hasAttribute('hidden')){ $('#tweakPanel').setAttribute('hidden',''); $('#tweakBtn').classList.remove('on'); return; }
+      if(!$('#musicPanel').hasAttribute('hidden')){ toggleMusic(); return; }
+      if($('#indexPanel').classList.contains('open')){ closeIndex(); return; }
       if($('#detail').classList.contains('open')){ Atlas.select(null); closeDetail(); return; }
     }
+    if(e.key==='i' && !typing){ $('#indexPanel').classList.contains('open')?closeIndex():openIndex(); return; }
     if(typing) return;
     if(e.key==='/'){ e.preventDefault(); const s=$('#search'); s.classList.add('open'); $('#searchInput').focus(); }
     else if(e.key==='ArrowRight' && Atlas.selected!=null){ e.preventDefault(); selectNode(Math.min(1000, Atlas.selected+1)); }
@@ -236,6 +257,87 @@ function bindKeys(){
     else if(e.key==='2'){ setLens('mandala'); }
     else if(e.key==='3'){ setLens('litany'); }
   });
+}
+
+// ---------------- INDEX (directory for the active connection) ----------------
+let IX=null;  // precomputed group lists per connection
+function buildIndexData(){
+  const nodes=DATA.nodes;
+  const firstWith=(pred)=>{ for(const d of nodes) if(pred(d)) return d.n; return 1; };
+  // recurring groups: key -> sorted occurrences, len>1, ordered by first occurrence
+  const byKey={}; nodes.forEach(d=>(byKey[d.key]=byKey[d.key]||[]).push(d.n));
+  const recurring=Object.values(byKey).filter(v=>v.length>1)
+    .map(v=>v.sort((a,b)=>a-b)).sort((a,b)=>a[0]-b[0])
+    .map(occ=>({label:nodes[occ[0]-1].name, sub:occ.join(', '), go:occ[0], find:nodes[occ[0]-1].name}));
+  IX={
+    litany: DATA.meta.slokas.map(s=>({
+      label:'Śloka '+s.s, sub:nodes[s.first-1].name+' to '+nodes[s.last-1].name+'  ('+s.count+')',
+      go:s.first, sloka:s.s, find:'sloka '+s.s+' '+nodes[s.first-1].name})),
+    roots: DATA.roots.map(r=>({
+      label:r.label, sub:r.gloss+'  ('+r.count+')', go:firstWith(d=>d.roots.includes(r.id)), find:r.label+' '+r.gloss})),
+    recurring,
+    avatars: DATA.avatars.filter(a=>a.count>0).map(a=>({
+      label:a.label, sub:a.count+(a.count>1?' names':' name'), go:firstWith(d=>d.avatars.includes(a.id)), find:a.label})),
+    themes: DATA.themes.map(t=>({
+      label:t.label, sub:t.prim+' names', go:firstWith(d=>d.primaryTheme===t.id), find:t.label})),
+  };
+}
+const IX_TABS=[['litany','Ślokas'],['roots','Roots'],['recurring','Recurring'],['avatars','Avatars'],['themes','Themes']];
+function renderIxTabs(){
+  $('#ixTabs').innerHTML=IX_TABS.map(([id,lab])=>
+    `<button data-conn="${id}" aria-pressed="${conn===id}">${lab}</button>`).join('');
+  $('#ixTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    setConn(b.dataset.conn);            // updates rail + rebuilds the list
+    renderIxTabs(); $('#indexSearch').value=''; buildIndexList('');
+  });
+}
+function openIndex(){
+  if(!IX) buildIndexData();
+  renderIxTabs();
+  $('#indexSearch').value='';
+  buildIndexList('');
+  $('#indexPanel').classList.add('open');
+  $('#indexBtn').classList.add('on');
+  $('#indexSearch').focus();
+}
+function closeIndex(){ $('#indexPanel').classList.remove('open'); $('#indexBtn').classList.remove('on'); }
+function buildIndexList(q){
+  const list=$('#indexList'); q=(q||'').trim().toLowerCase();
+  let items=IX[conn]||[];
+  if(q) items=items.filter(it=>it.find.toLowerCase().includes(q)||it.label.toLowerCase().includes(q)||it.sub.toLowerCase().includes(q));
+  if(!items.length){ list.innerHTML='<div class="rel-empty">No match.</div>'; return; }
+  list.innerHTML=items.map((it,i)=>
+    `<div class="ix-item" data-i="${i}"><span class="ix-lbl">${it.label}</span><span class="ix-sub">${it.sub}</span></div>`).join('');
+  const cur=items;
+  list.querySelectorAll('.ix-item').forEach(el=>{
+    el.onclick=()=>{ const it=cur[+el.dataset.i]; jumpIndex(it); };
+  });
+}
+function jumpIndex(it){
+  if(it.sloka!=null){
+    if(lens!=='litany') setLens('litany');
+    Atlas.select(it.go); openDetail(it.go); syncURL();
+    setTimeout(()=>scrollToSloka(it.sloka), lens==='litany'?60:420);
+  } else {
+    selectNode(it.go);
+  }
+  if(window.matchMedia('(max-width:900px)').matches) closeIndex();
+}
+
+// ---------------- CHANT PLAYER ----------------
+function toggleMusic(){
+  const p=$('#musicPanel'), btn=$('#musicBtn');
+  if(p.hasAttribute('hidden')){
+    if(!$('#musicEmbed').childElementCount){
+      const f=document.createElement('iframe');
+      f.src=SPOTIFY_EMBED; f.width='100%'; f.height='152'; f.frameBorder='0'; f.loading='lazy';
+      f.style.borderRadius='12px';
+      f.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+      f.setAttribute('allowfullscreen','');
+      $('#musicEmbed').appendChild(f);
+    }
+    p.removeAttribute('hidden'); btn.classList.add('on');
+  } else { p.setAttribute('hidden',''); btn.classList.remove('on'); }
 }
 
 // ---------------- DETAIL PANEL ----------------
@@ -321,7 +423,7 @@ function buildLitany(){
   DATA.nodes.forEach(d=>{
     if(d.sloka!==cur){
       cur=d.sloka;
-      const h=el('div','litany-sloka');
+      const h=el('div','litany-sloka'); h.id='s'+cur;
       h.innerHTML=`<div class="ls-num">श्लोक <b>${cur}</b></div>
         <div class="ls-verse">${stanza[cur].join(' ')}</div>`;
       frag.appendChild(h);
@@ -341,6 +443,10 @@ function buildLitany(){
 }
 function scrollToVerse(n){
   const v=$('#v'+n); if(v){ $('#litany').scrollTo({top:v.offsetTop-140, behavior:'smooth'}); }
+  syncLitanySel();
+}
+function scrollToSloka(s){
+  const h=$('#s'+s); if(h){ $('#litany').scrollTo({top:h.offsetTop-90, behavior:'smooth'}); }
   syncLitanySel();
 }
 function syncLitanySel(){

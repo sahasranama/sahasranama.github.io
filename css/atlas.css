@@ -437,3 +437,55 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 /* detail: sloka chip */
 .d-sloka{margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--chip-line);
   color:var(--ink-3);font-size:10px;letter-spacing:.12em;}
+
+/* =================== INDEX PANEL (left slide-in) =================== */
+.indexpanel{
+  position:fixed;top:0;left:0;height:100vh;width:330px;z-index:55;
+  background:var(--panel);backdrop-filter:blur(22px);
+  border-right:1px solid var(--line);box-shadow:30px 0 70px -30px rgba(0,0,0,.6);
+  transform:translateX(-105%);transition:transform .5s var(--ease);
+  display:flex;flex-direction:column;padding:18px 16px 10px;
+}
+.indexpanel.open{transform:translateX(0);}
+.ix-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ix-title{font-family:var(--font-serif);font-size:19px;color:var(--ink-1);}
+.ix-title span{font-size:12px;color:var(--gold-soft);letter-spacing:.04em;}
+.ix-close{width:32px;height:32px;}
+.ix-search{
+  width:100%;height:36px;border-radius:10px;background:var(--bg-2);border:1px solid var(--chip-line);
+  color:var(--ink-1);font-family:var(--font-sans);font-size:13.5px;padding:0 13px;outline:none;margin-bottom:8px;
+}
+.ix-search:focus{border-color:var(--gold-soft);}
+.ix-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.ix-item{
+  display:flex;flex-direction:column;gap:2px;padding:9px 11px;border-radius:9px;cursor:pointer;
+  transition:background .15s var(--ease);
+}
+.ix-item:hover{background:var(--bg-3);}
+.ix-lbl{font-family:var(--font-serif);font-size:15.5px;color:var(--ink-1);}
+.ix-sub{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+
+/* =================== CHANT PLAYER (Spotify popover) =================== */
+.musicpanel{
+  position:fixed;top:70px;right:22px;z-index:60;width:340px;
+  background:var(--panel);backdrop-filter:blur(18px);
+  border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-panel);
+  padding:14px;animation:twkIn .26s var(--ease);
+}
+.musicpanel[hidden]{display:none;}
+.mp-head{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:10px;}
+.mp-embed{min-height:152px;}
+.mp-note{font-size:11px;color:var(--ink-4);font-style:italic;margin-top:8px;text-align:right;}
+@media (max-width:900px){ .indexpanel{width:84vw;} .musicpanel{right:12px;left:12px;width:auto;} }
+
+/* index connection tabs */
+.ix-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.ix-tabs button{
+  font-size:11.5px;font-weight:600;color:var(--ink-3);padding:5px 11px;border-radius:999px;
+  background:var(--chip-bg);border:1px solid var(--chip-line);transition:all .15s var(--ease);
+}
+.ix-tabs button:hover{color:var(--ink-1);}
+.ix-tabs button[aria-pressed="true"]{
+  background:linear-gradient(180deg,rgba(217,164,65,.92),rgba(184,120,35,.92));color:#1c130b;border-color:var(--gold-soft);
+}
+[data-theme="day"] .ix-tabs button[aria-pressed="true"]{color:#fff;}

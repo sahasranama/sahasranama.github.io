@@ -52,7 +52,9 @@ panel and select a name to see gold threads drawn to its other lives.
 ## What's inside
 
 - **Connections.** Draw gold threads from a name to its kin by shared roots, recurring names, avatars, themes, or litany sequence.
-- **Detail panel.** Devanāgarī, meaning(s), theme and avatar tags, root etymologies, recurring twins, and clickable related names.
+- **Index.** A directory of the active connection: jump straight to any of the 107 ślokas, 18 roots, 70 recurring groups, 10 avatāras, or 12 themes.
+- **Listen.** Stream the recitation (M. S. Subbulakshmi) through an embedded Spotify player.
+- **Detail panel.** Devanāgarī, IAST, meaning(s), theme and avatar tags, root etymologies, recurring twins, and clickable related names.
 - **Filters and search.** Isolate a theme or avatar; search any name or meaning.
 - **Atmosphere.** A day and night toggle, plus a Tweaks popover for motion, thread-accent colour, glow, and display typeface.
 - **Made to feel sacred.** An ॐ loading state, breathing glow, golden threads, and a clay-and-gold palette.
