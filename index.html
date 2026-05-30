@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sahasranama Atlas · the thousand names of Vishnu, connected</title>
+<meta name="description" content="An interactive graph atlas of the 1000 names of Vishnu from the Vishnu Sahasranama — explore how the names connect through shared roots, themes of life, avatars, and recurring meanings.">
+<link rel="stylesheet" href="css/atlas.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="om">ॐ</span>
+      <h1>Sahasranama Atlas</h1>
+      <span class="sub">the thousand names, connected</span>
+    </div>
+    <nav class="modes" id="modes">
+      <button data-mode="graph" class="active">Graph</button>
+      <button data-mode="about">About</button>
+    </nav>
+    <div class="search">
+      <span class="mag">⌕</span>
+      <input id="q" type="text" placeholder="Search a name or meaning…" autocomplete="off" spellcheck="false">
+      <div class="results" id="results"></div>
+    </div>
+  </header>
+
+  <div class="stage">
+    <div id="cy"></div>
+
+    <!-- control rail -->
+    <aside class="rail" id="rail">
+      <div class="group">
+        <h3>Connections</h3>
+        <label class="toggle"><input type="checkbox" id="e-theme" checked><span class="dot" style="background:var(--hub)"></span>Themes of life</label>
+        <label class="toggle"><input type="checkbox" id="e-repeat" checked><span class="dot" style="background:var(--repeat)"></span>Recurring names</label>
+        <label class="toggle"><input type="checkbox" id="e-root"><span class="dot" style="background:var(--gold-soft)"></span>Shared roots</label>
+        <label class="toggle"><input type="checkbox" id="e-avatar"><span class="dot" style="background:#caa0d8"></span>Avatars</label>
+        <label class="toggle"><input type="checkbox" id="e-seq"><span class="dot" style="background:var(--gold-dim)"></span>Litany sequence</label>
+      </div>
+      <div class="group">
+        <h3>Filter by theme</h3>
+        <div class="chips" id="theme-chips"></div>
+      </div>
+      <div class="group">
+        <h3>Filter by avatar</h3>
+        <div class="chips" id="avatar-chips"></div>
+      </div>
+      <span class="reset" id="reset">↺ reset view</span>
+    </aside>
+
+    <!-- detail panel -->
+    <aside class="detail" id="detail">
+      <span class="close" id="detail-close">✕</span>
+      <div id="detail-body"></div>
+    </aside>
+
+    <div class="hint" id="hint">
+      <span><span class="k">click</span> a name</span>
+      <span><span class="k">scroll</span> to zoom</span>
+      <span><span class="k">drag</span> to pan</span>
+    </div>
+
+    <!-- about mode -->
+    <div class="modeview" id="view-about">
+      <div class="wrap" id="about-body"></div>
+    </div>
+
+    <div id="veil"><div class="om">ॐ</div><div class="t">gathering the thousand names…</div></div>
+  </div>
+
+  <script src="vendor/cytoscape.min.js"></script>
+  <script src="vendor/layout-base.js"></script>
+  <script src="vendor/cose-base.js"></script>
+  <script src="vendor/cytoscape-fcose.js"></script>
+  <script src="js/atlas.js"></script>
+</body>
+</html>
