@@ -1,8 +1,8 @@
 /* ============================================================
-   SAHASRANAMA ATLAS — Tweaks (vanilla)
+   SAHASRANAMA ATLAS - Tweaks (vanilla)
    Replaces the design-tool's React edit-mode harness with a real,
    always-available popover so visitors can tune the atmosphere.
-   Motion · thread accent · glow · display face. Persisted to
+   Motion - thread accent - glow - display face. Persisted to
    localStorage; applied on load so the page always matches the
    chosen design even before the panel is opened.
    ============================================================ */

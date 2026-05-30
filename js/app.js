@@ -1,5 +1,5 @@
 /* ============================================================
-   SAHASRANAMA ATLAS — application / chrome / state
+   SAHASRANAMA ATLAS - application / chrome / state
    ============================================================ */
 (function(){
 'use strict';
@@ -147,7 +147,7 @@ function updateScalebar(){
   if(filter.theme) n=DATA.nodes.filter(d=>d.primaryTheme===filter.theme).length;
   else if(filter.avatar) n=DATA.nodes.filter(d=>d.avatars.includes(filter.avatar)).length;
   const label = (filter.theme||filter.avatar) ? 'shown' : 'names';
-  $('#scalebar').innerHTML=`<b>${n}</b> ${label} <span style="opacity:.5">· of 1000</span>`;
+  $('#scalebar').innerHTML=`<b>${n}</b> ${label} <span style="opacity:.5">of 1000</span>`;
 }
 
 function toggleMode(){
@@ -197,7 +197,7 @@ function openDetail(n){
   const d=DATA.nodes[n-1]; const body=$('#detailBody');
   const meanings=d.meaning.split(/; or |;\s*/).filter(Boolean);
   const meanHTML = meanings.map((m,i)=> i===0
-    ? `<span>${cap(m)}</span>` : `<span class="alt"> · ${m}</span>`).join('');
+    ? `<span>${cap(m)}</span>` : `<span class="alt">; ${m}</span>`).join('');
 
   // tags
   const themeTags=d.themes.map(t=>{ const m=themeMeta(t); const col=Atlas.THEME_COLORS[t][themeMode];
@@ -230,7 +230,7 @@ function openDetail(n){
     relHTML=show.map(x=>{ const r=DATA.nodes[x-1];
       return `<div class="rel" data-go="${x}"><span class="rn">${x}</span><span class="rnm">${r.name}</span><span class="rm">${r.meaning.split(/;| or /)[0]}</span></div>`;
     }).join('');
-    if(kin.length>show.length) relHTML+=`<div class="rel-empty">+ ${kin.length-show.length} more under “${connLabel}”.</div>`;
+    if(kin.length>show.length) relHTML+=`<div class="rel-empty">+ ${kin.length-show.length} more under "${connLabel}".</div>`;
   }
 
   const devBlock = d.dev
@@ -241,13 +241,13 @@ function openDetail(n){
     <div class="d-num">Name <b>${n}</b> of 1000</div>
     ${devBlock}
     <h2 class="d-name">${d.name}</h2>
-    <div class="d-translit">${d.dev?'transliteration · '+d.name.toLowerCase():'devanāgarī pending verification'}</div>
-    <div class="d-rule">❋</div>
+    <div class="d-translit">${d.dev?'transliteration of '+d.name.toLowerCase():'devanāgarī pending verification'}</div>
+    <div class="d-rule"></div>
     <div class="d-mean">${meanHTML}</div>
     <div class="d-sec"><h3>Themes of life</h3><div class="tag-row">${themeTags}${avTags}</div></div>
     ${rootHTML}
     ${twinHTML}
-    <div class="d-sec"><h3>Related · ${connLabel}</h3><div class="rel-row">${relHTML}</div></div>
+    <div class="d-sec"><h3>Related by ${connLabel}</h3><div class="rel-row">${relHTML}</div></div>
   `;
   body.querySelectorAll('[data-go]').forEach(e=>e.onclick=()=>selectNode(+e.dataset.go));
   $('#detail').classList.add('open');
@@ -264,7 +264,7 @@ function buildLitany(){
   inner.appendChild(head);
   const frag=document.createDocumentFragment();
   DATA.nodes.forEach((d,idx)=>{
-    if(idx%100===0){ frag.appendChild(el('div','litany-century', idx===0?'I — V':roman(idx/100+1))); }
+    if(idx%100===0){ frag.appendChild(el('div','litany-century', idx===0?'I':roman(idx/100+1))); }
     const col=Atlas.THEME_COLORS[d.primaryTheme][themeMode];
     const v=el('div','verse');
     v.id='v'+d.n; v.dataset.n=d.n;
@@ -299,7 +299,7 @@ function buildAbout(){
     <span class="om">ॐ</span>
     <h2>Sahasranama <em>Atlas</em></h2>
     <div class="ac-sub">the thousand names of Viṣṇu, connected</div>
-    <p>The <b>Viṣṇu Sahasranāma</b> — from the Anuśāsana Parva of the Mahābhārata — is a litany of one thousand names. It is not a flat list. Names <b>recur</b> with new shades of meaning, <b>cluster</b> around shared roots, gesture toward the <b>avatāras</b>, and together map an entire inner life.</p>
+    <p>The <b>Viṣṇu Sahasranāma</b>, from the Anuśāsana Parva of the Mahābhārata, is a litany of one thousand names. It is not a flat list. Names <b>recur</b> with new shades of meaning, <b>cluster</b> around shared roots, gesture toward the <b>avatāras</b>, and together map an entire inner life.</p>
     <p>This atlas turns the litany into something you can <b>wander</b>. Three lenses offer three ways of seeing: a <b>Constellation</b> where names gather by theme, a <b>Mandala</b> that spirals them in the order they are sung, and the <b>Litany</b> itself as an illuminated scroll.</p>
     <div class="ac-grid">
       <div class="ac-cell"><div class="acn">1000</div><div class="acl">names</div></div>
@@ -307,7 +307,7 @@ function buildAbout(){
       <div class="ac-cell"><div class="acn">12</div><div class="acl">themes of life</div></div>
       <div class="ac-cell"><div class="acn">${DATA.avatars.filter(a=>a.count>0).length}</div><div class="acl">avatāras traced</div></div>
     </div>
-    <p class="ac-note">Names &amp; meanings are the project's own dataset of 1000 entries. Themes, shared roots, avatar references and recurrences are <b>computed</b> from the text. Devanāgarī is supplied for ${dev} well-known names and marked “pending verification” elsewhere — drop in a verified column and it appears automatically.</p>
+    <p class="ac-note">Names &amp; meanings are the project's own dataset of 1000 entries. Themes, shared roots, avatar references and recurrences are <b>computed</b> from the text. Devanāgarī is supplied for ${dev} well-known names and marked "pending verification" elsewhere. Drop in a verified column and it appears automatically.</p>
   `;
 }
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   ATLAS ENGINE — canvas renderer for the 1000 names
+   ATLAS ENGINE - canvas renderer for the 1000 names
    Two layouts (constellation / mandala), pan-zoom, glow sprites,
    animated morph between layouts, on-demand connection threads.
    Vanilla JS. Exposed as window.Atlas.
