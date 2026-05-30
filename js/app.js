@@ -286,12 +286,13 @@ function openDetail(n){
   const devBlock = d.dev
     ? `<div class="d-dev">${d.dev}</div>`
     : `<div class="d-dev romanonly">${d.name}</div>`;
+  const translit = d.iast ? d.iast : d.name.toLowerCase();
 
   body.innerHTML=`
-    <div class="d-num">Name <b>${n}</b> of 1000</div>
+    <div class="d-num">Name <b>${n}</b> of 1000 <span class="d-sloka">sloka ${d.sloka}</span></div>
     ${devBlock}
     <h2 class="d-name">${d.name}</h2>
-    <div class="d-translit">${d.dev?'transliteration of '+d.name.toLowerCase():'devanāgarī pending verification'}</div>
+    <div class="d-translit">${translit}</div>
     <div class="d-rule"></div>
     <div class="d-mean">${meanHTML}</div>
     <div class="d-sec"><h3>Themes of life</h3><div class="tag-row">${themeTags}${avTags}</div></div>
@@ -307,19 +308,30 @@ function closeDetail(){ $('#detail').classList.remove('open'); syncLitanySel(); 
 function cap(s){ s=s.trim(); return s.charAt(0).toUpperCase()+s.slice(1); }
 function devForRoot(r){ const map={bhuta:'भूत',maha:'महा',vishva:'विश्व',atma:'आत्मन्',veda:'वेद',ishvara:'ईश्वर',prabha:'प्रभा',padma:'पद्म',chatur:'चतुर्',siddha:'सिद्ध',ananta:'अनन्त',yoga:'योग',hari:'हरि',nabha:'नाभ',deva:'देव',gati:'गति',kara:'कर',dhara:'धर'}; return map[r]||'॥'; }
 
-// ---------------- LITANY LENS ----------------
+// ---------------- LITANY LENS (sloka-grouped recitation) ----------------
 function buildLitany(){
   const inner=$('#litanyInner');
   const head=el('div','litany-head',`<div class="om">ॐ</div><div class="lt">the thousand names, in the order they are sung</div>`);
   inner.appendChild(head);
+  // Devanagari stanza for each sloka = its names, in order
+  const stanza={};
+  DATA.nodes.forEach(d=>{ (stanza[d.sloka]=stanza[d.sloka]||[]).push(d.dev||d.name); });
   const frag=document.createDocumentFragment();
-  DATA.nodes.forEach((d,idx)=>{
-    if(idx%100===0){ frag.appendChild(el('div','litany-century', idx===0?'I':roman(idx/100+1))); }
+  let cur=0;
+  DATA.nodes.forEach(d=>{
+    if(d.sloka!==cur){
+      cur=d.sloka;
+      const h=el('div','litany-sloka');
+      h.innerHTML=`<div class="ls-num">श्लोक <b>${cur}</b></div>
+        <div class="ls-verse">${stanza[cur].join(' ')}</div>`;
+      frag.appendChild(h);
+    }
     const col=Atlas.THEME_COLORS[d.primaryTheme][themeMode];
     const v=el('div','verse');
     v.id='v'+d.n; v.dataset.n=d.n;
     v.innerHTML=`<div class="vn">${d.n}</div><div class="vbody">
       <div class="vname">${d.name}${d.dev?`<span class="vdev">${d.dev}</span>`:''}</div>
+      ${d.iast?`<div class="viast">${d.iast}</div>`:''}
       <div class="vmean">${cap(d.meaning)}</div>
       <div class="vdotwrap"><span class="vdot" data-col style="background:${col}"></span></div></div>`;
     v.onclick=()=>{ Atlas.select(d.n); openDetail(d.n); syncLitanySel(); };
@@ -327,7 +339,6 @@ function buildLitany(){
   });
   inner.appendChild(frag);
 }
-function roman(n){ return ['','I','II','III','IV','V','VI','VII','VIII','IX','X'][n]+''; }
 function scrollToVerse(n){
   const v=$('#v'+n); if(v){ $('#litany').scrollTo({top:v.offsetTop-140, behavior:'smooth'}); }
   syncLitanySel();
@@ -354,11 +365,11 @@ function buildAbout(){
     <p>This atlas turns that answer into something you can <b>wander</b>. Three lenses offer three ways of seeing: a <b>Constellation</b> where names gather by theme, a <b>Mandala</b> that spirals them in the order they are sung, and the <b>Litany</b> itself as an illuminated scroll. Press <b>1 2 3</b> to switch, <b>/</b> to search, arrow keys to walk the litany, and share any view by its link.</p>
     <div class="ac-grid">
       <div class="ac-cell"><div class="acn">1000</div><div class="acl">names</div></div>
+      <div class="ac-cell"><div class="acn">107</div><div class="acl">slokas</div></div>
       <div class="ac-cell"><div class="acn">${recurGroups}</div><div class="acl">recurring names</div></div>
       <div class="ac-cell"><div class="acn">12</div><div class="acl">themes of life</div></div>
-      <div class="ac-cell"><div class="acn">${DATA.avatars.filter(a=>a.count>0).length}</div><div class="acl">avatāras traced</div></div>
     </div>
-    <p class="ac-note">Names &amp; meanings are the project's own dataset of 1000 entries. Themes, shared roots, avatar references and recurrences are <b>computed</b> from the text. Devanāgarī is supplied for ${dev} well-known names and marked "pending verification" elsewhere. Drop in a verified column and it appears automatically.</p>
+    <p class="ac-note">Names and meanings are the project's own dataset of 1000 entries; themes, roots, avatars and recurrences are computed from that text. <b>Devanāgarī now covers all ${dev} names</b> (from the drikpanchang namavali, cross-checked by transliteration), with IAST generated from it. The Litany groups the names into their <b>107 ślokas</b> (grouping from swami-krishnananda.org). Sacred text, machine-assembled; verify before liturgical use.</p>
   `;
 }
 

@@ -422,3 +422,18 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   font-style:italic;color:var(--ink-1);
   border-left:2px solid var(--gold);padding-left:16px;margin-left:2px;
 }
+
+/* =================== LITANY: sloka grouping =================== */
+.litany-sloka{
+  margin:40px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--line-soft);
+}
+.litany-sloka:first-of-type{margin-top:20px;}
+.ls-num{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-4);
+  font-family:var(--font-dev);margin-bottom:8px;}
+.ls-num b{color:var(--gold);font-family:var(--font-serif);font-style:italic;font-size:15px;letter-spacing:0;}
+.ls-verse{font-family:var(--font-dev);font-size:21px;line-height:1.7;color:var(--gold-soft);
+  text-shadow:0 0 26px var(--halo);font-weight:500;}
+.verse .viast{font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--ink-4);margin-top:1px;letter-spacing:.02em;}
+/* detail: sloka chip */
+.d-sloka{margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--chip-line);
+  color:var(--ink-3);font-size:10px;letter-spacing:.12em;}

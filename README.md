@@ -32,7 +32,7 @@ morphs smoothly between forms.
 |---|---|
 | <img src="assets/screens/constellation.png" width="100%"> | **Constellation.** Names gather into **12 glowing theme-of-life clusters**: cosmos, time, knowledge, power, soul, grace, purity, lordship, being, and more. A galaxy of meaning. |
 | <img src="assets/screens/mandala.png" width="100%"> | **Mandala.** A **golden-angle spiral** in chanting order, with name 1 at the heart and name 1000 at the rim. The litany as a seed-head of light. |
-| <img src="assets/screens/litany.png" width="100%"> | **Litany.** The full litany as an **illuminated, scrollable manuscript**, each name with its Devanāgarī, meaning, and theme. |
+| <img src="assets/screens/litany.png" width="100%"> | **Litany.** The full litany as an **illuminated, scrollable manuscript**, grouped into its **107 ślokas** - each name with its Devanāgarī, IAST, meaning, and theme. |
 
 <br>
 
@@ -85,13 +85,20 @@ data/names_1000.json   the name and meaning source
 ## Data and honesty
 
 The names and meanings are the project's own dataset of **1000 entries** (an English translation
-following the Sri Ramakrishna Mutt and Anna rendering). Two things are computed, not authoritative,
-and easy to upgrade:
+following the Sri Ramakrishna Mutt and Anna rendering).
 
-- **Devanāgarī** is hand-curated for **108 well-known names** and marked "pending verification"
-  elsewhere. Drop in a verified Devanāgarī and IAST column and it populates automatically.
-- **Themes, roots, avatar references and recurrences** are derived from the meaning text (the
-  source is only name and meaning). Swap in an authoritative tagging and the atlas follows.
+- **Devanāgarī now covers all 1000 names.** Sourced from the Vishnu Sahasranamavali at
+  [drikpanchang.com](https://www.drikpanchang.com/deities-namavali/gods/lord-vishnu/1000-vishnu-names.html)
+  (order-matched to our names and cross-checked by transliterating each back to IAST and comparing,
+  ~0.95 average match); 108 retained from prior curation; the final names reconciled with the
+  vedicprayers namavali and canonical readings.
+- **IAST** is generated deterministically from the Devanāgarī.
+- **Verses.** The Litany groups the names into their **107 ślokas**, grouping from
+  [swami-krishnananda.org](https://www.swami-krishnananda.org/vishnu/vishnu_1.html).
+- **Themes, roots, avatar references and recurrences** are computed from the meaning text.
+
+The assembly steps and the verification script live in [`data/build/`](data/build/). This is
+sacred text, machine-assembled; verify against a trusted edition before liturgical use.
 
 > "It is also very important to meditate on the meaning of each word while it is sung."
 
